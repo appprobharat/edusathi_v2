@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "880080212229",
+    "project_id": "schoolerpapp-a3564",
+    "storage_bucket": "schoolerpapp-a3564.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:880080212229:android:52d44ec4427b69593c276c",
+        "android_client_info": {
+          "package_name": "com.techinnovationapp.edusathi_v2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtxIipFXyyOiZ8UpyjNfv6RJKJTjVXW4Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
