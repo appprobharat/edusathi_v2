@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:edusathi_v2/auth_helper.dart';
+import 'package:edusathi_v2/api_service.dart';
+
 
 class ResultCardPage extends StatefulWidget {
   const ResultCardPage({super.key});
@@ -36,9 +37,9 @@ class _ResultCardPageState extends State<ResultCardPage> {
   // ---------------- FETCH EXAMS ----------------
   Future<void> fetchExams() async {
     try {
-      final response = await AuthHelper.post(
+      final response = await ApiService.post(
         context,
-        "https://schoolerp.edusathi.in/api/get_exam",
+        "/get_exam",
       );
 
       if (response == null) return;
@@ -70,9 +71,9 @@ class _ResultCardPageState extends State<ResultCardPage> {
     });
 
     try {
-      final response = await AuthHelper.post(
+      final response = await ApiService.post(
         context,
-        'https://schoolerp.edusathi.in/api/teacher/result',
+        '/teacher/result',
         body: {'ExamId': selectedExamId},
       );
 
@@ -141,7 +142,7 @@ class _ResultCardPageState extends State<ResultCardPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Student Result"),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
       body: Padding(
@@ -181,7 +182,7 @@ class _ResultCardPageState extends State<ResultCardPage> {
                       child: ElevatedButton(
                         onPressed: fetchResults,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
+                          backgroundColor: AppColors.primary,
                         ),
                         child: const Text(
                           'Search',
@@ -225,7 +226,7 @@ class _ResultCardPageState extends State<ResultCardPage> {
             // ---------------- RESULTS ----------------
             Expanded(
               child: isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary),)
                   : filteredResults.isEmpty
                   ? const Center(child: Text('No results found.'))
                   : ListView.builder(

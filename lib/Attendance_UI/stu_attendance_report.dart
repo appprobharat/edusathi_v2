@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:edusathi_v2/auth_helper.dart';
+import 'package:edusathi_v2/api_service.dart';
 
 class StudentAttendanceScreen extends StatefulWidget {
   const StudentAttendanceScreen({super.key});
@@ -32,10 +32,9 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
 
     try {
       final formattedMonth = DateFormat('yyyy-MM').format(_focusedMonth);
-
-      final res = await AuthHelper.post(
+      final res = await ApiService.post(
         context,
-        'https://schoolerp.edusathi.in/api/student/attendance',
+        "/student/attendance",
         body: {'Month': formattedMonth},
       );
 
@@ -65,9 +64,9 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
       debugPrint("🚨 STUDENT ATTENDANCE ERROR: $e");
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Something went wrong")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Something went wrong")));
     } finally {
       if (!mounted) return;
       setState(() => _isLoading = false);
@@ -132,7 +131,7 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
           'My Attendance',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Stack(
@@ -150,9 +149,7 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
               child: Container(
                 color: Colors.black.withOpacity(0.1),
                 child: const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.deepPurple,
-                  ),
+                  child: CircularProgressIndicator(color: AppColors.primary),
                 ),
               ),
             ),
@@ -354,7 +351,7 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Colors.deepPurple,
+              color: AppColors.primary,
             ),
           ),
           const SizedBox(height: 12),

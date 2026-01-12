@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import '../auth_helper.dart'; 
+import 'package:edusathi_v2/api_service.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -67,9 +67,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   setState(() => isSubmitting = true);
 
   try {
-    final response = await AuthHelper.post(
+    final response = await ApiService.post(
       context,
-      'https://schoolerp.edusathi.in/api/password',
+      '/password',
       body: {
         'current_pass': currentPass,
         'new_pass': newPass,
@@ -124,7 +124,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primary,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -170,7 +170,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 child: ElevatedButton(
                   onPressed: isSubmitting ? null : handleChangePassword,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
+                    backgroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   child: isSubmitting

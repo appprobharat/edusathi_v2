@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:edusathi_v2/api_service.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class StudentCalendarPage extends StatefulWidget {
@@ -16,10 +17,10 @@ class _StudentCalendarPageState extends State<StudentCalendarPage> {
   @override
   Widget build(BuildContext context) {
     final today = DateTime.now();
-    final formattedDay = DateFormat('EEEE').format(today); 
+    final formattedDay = DateFormat('EEEE').format(today); // e.g., Friday
     final formattedDate = DateFormat(
       'd MMMM yyyy',
-    ).format(today); 
+    ).format(today); // e.g., 7 November 2025
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -28,7 +29,7 @@ class _StudentCalendarPageState extends State<StudentCalendarPage> {
           "School Calendar",
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
       ),
@@ -42,11 +43,11 @@ class _StudentCalendarPageState extends State<StudentCalendarPage> {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.deepPurple,
+                color: AppColors.primary,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.deepPurple.withOpacity(0.2),
+                    color: AppColors.primary.withOpacity(0.2),
                     blurRadius: 6,
                     offset: const Offset(0, 4),
                   ),
@@ -105,16 +106,16 @@ class _StudentCalendarPageState extends State<StudentCalendarPage> {
                   titleTextStyle: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple,
+                    color: AppColors.primary,
                   ),
                 ),
                 calendarStyle: CalendarStyle(
                   todayDecoration: BoxDecoration(
-                    color: Colors.deepPurple,
+                    color: AppColors.primary,
                     shape: BoxShape.circle,
                   ),
                   selectedDecoration: const BoxDecoration(
-                    color: Colors.deepPurple,
+                    color: AppColors.primary,
                     shape: BoxShape.circle,
                   ),
                   selectedTextStyle: const TextStyle(color: Colors.white),

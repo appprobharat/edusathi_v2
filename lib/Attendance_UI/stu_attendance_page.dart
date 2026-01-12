@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:edusathi_v2/auth_helper.dart';
+import 'package:edusathi_v2/api_service.dart';
+
 
 class AttendanceAnalyticsPage extends StatefulWidget {
   const AttendanceAnalyticsPage({super.key});
@@ -75,10 +76,10 @@ class _AttendanceAnalyticsPageState extends State<AttendanceAnalyticsPage> {
     setState(() => _isLoading = true);
 
     try {
-      final res = await AuthHelper.post(
-        context,
-        "https://schoolerp.edusathi.in/api/student/attendance/analytics",
-      );
+      final res = await ApiService.post(
+  context,
+  "/student/attendance/analytics",
+);
 
       // AuthHelper already handles 401 + logout
       if (res == null) return;
@@ -125,11 +126,11 @@ class _AttendanceAnalyticsPageState extends State<AttendanceAnalyticsPage> {
           "Attendance Analysis",
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary),)
           : data == null
               ? const Center(child: Text("No data found"))
               : SafeArea(
@@ -267,7 +268,7 @@ class AttendanceAnalyticsWidget extends StatelessWidget {
                         BarChartRodData(
                           toY:
                               (e.value['percentage'] ?? 0).toDouble(),
-                          color: Colors.deepPurple,
+                          color: AppColors.primary,
                           width: 14,
                           borderRadius: BorderRadius.circular(4),
                         ),

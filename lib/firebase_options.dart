@@ -24,12 +24,12 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
+        return android;
+      case TargetPlatform.iOS:
         throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for android - '
+          'DefaultFirebaseOptions have not been configured for ios - '
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
-      case TargetPlatform.iOS:
-        return ios;
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
@@ -52,12 +52,11 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDOzzBaC1wz9dr8S6PZv9WgN-S266RtwSg',
-    appId: '1:880080212229:ios:de0659407d36e36a3c276c',
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyCtxIipFXyyOiZ8UpyjNfv6RJKJTjVXW4Y',
+    appId: '1:880080212229:android:52d44ec4427b69593c276c',
     messagingSenderId: '880080212229',
     projectId: 'schoolerpapp-a3564',
     storageBucket: 'schoolerpapp-a3564.firebasestorage.app',
-    iosBundleId: 'com.techinnovationapp.edusathiv2',
   );
 }

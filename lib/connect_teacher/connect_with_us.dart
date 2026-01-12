@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:edusathi_v2/auth_helper.dart';
+import 'package:edusathi_v2/api_service.dart';
 
 class ConnectWithUsPage extends StatefulWidget {
   final int teacherId;
@@ -60,9 +60,9 @@ class _ConnectWithUsPageState extends State<ConnectWithUsPage> {
     if (!mounted) return;
 
     try {
-      final res = await AuthHelper.post(
+      final res = await ApiService.post(
         context,
-        "https://schoolerp.edusathi.in/api/student/messages",
+        "/student/messages",
       );
 
       if (res == null) return;
@@ -118,9 +118,9 @@ class _ConnectWithUsPageState extends State<ConnectWithUsPage> {
     setState(() => isSending = true);
 
     try {
-      final res = await AuthHelper.post(
+      final res = await ApiService.post(
         context,
-        "https://schoolerp.edusathi.in/api/student/message/send",
+        "/student/message/send",
         body: {"receiver_id": teacherId.toString(), "message": text},
       );
 
@@ -196,10 +196,10 @@ class _ConnectWithUsPageState extends State<ConnectWithUsPage> {
             onPressed: () => fetchMessages(),
           ),
         ],
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primary,
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary),)
           : Column(
               children: [
                 Expanded(
@@ -223,7 +223,7 @@ class _ConnectWithUsPageState extends State<ConnectWithUsPage> {
                           ),
                           decoration: BoxDecoration(
                             color: isUser
-                                ? Colors.deepPurple.shade100
+                                ? AppColors.primary.shade100
                                 : Colors.grey.shade200,
                             borderRadius: BorderRadius.only(
                               topLeft: const Radius.circular(12),
@@ -283,7 +283,7 @@ class _ConnectWithUsPageState extends State<ConnectWithUsPage> {
                       InkWell(
                         onTap: isSending ? null : _handleSendMessage,
                         child: CircleAvatar(
-                          backgroundColor: Colors.deepPurple,
+                          backgroundColor: AppColors.primary,
                           child: isSending
                               ? const CircularProgressIndicator(
                                   color: Colors.white,

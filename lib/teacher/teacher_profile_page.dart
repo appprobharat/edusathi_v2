@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:edusathi_v2/auth_helper.dart';
+import 'package:edusathi_v2/api_service.dart';
 import 'package:edusathi_v2/changePasswordPage.dart';
 
 
@@ -50,9 +50,9 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
   // ---------------- FETCH PROFILE ----------------
  Future<void> fetchTeacherProfile() async {
   try {
-    final response = await AuthHelper.post(
+    final response = await ApiService.post(
       context,
-      'https://schoolerp.edusathi.in/api/teacher/profile',
+      '/teacher/profile',
     );
 
     // Token expired → AuthHelper already logged out
@@ -91,11 +91,11 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
           "Teacher Profile",
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary),)
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: Card(
@@ -164,7 +164,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                           style: TextStyle(color: Colors.white),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
+                          backgroundColor: AppColors.primary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -184,7 +184,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: Colors.deepPurple),
+          Icon(icon, color: AppColors.primary),
           const SizedBox(width: 10),
           Text("$title: ", style: const TextStyle(fontWeight: FontWeight.bold)),
           Expanded(child: Text(value)),

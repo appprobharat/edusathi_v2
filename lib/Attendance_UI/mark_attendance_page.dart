@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:edusathi_v2/auth_helper.dart';
+import 'package:edusathi_v2/api_service.dart';
 
 class MarkAttendancePage extends StatefulWidget {
   const MarkAttendancePage({super.key});
@@ -26,11 +26,12 @@ class _MarkAttendancePageState extends State<MarkAttendancePage> {
     super.initState();
     fetchStudents();
   }
-@override
-void dispose() {
-  searchController.dispose();
-  super.dispose();
-}
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
   // ====================================================
   // 🔐 SAFE FETCH STUDENTS (iOS + Android)
@@ -41,12 +42,10 @@ void dispose() {
     setState(() => isLoading = true);
 
     try {
-      final res = await AuthHelper.post(
+      final res = await ApiService.post(
         context,
-        'https://schoolerp.edusathi.in/api/teacher/std_attendance',
-        body: {
-          'Date': DateFormat('yyyy-MM-dd').format(selectedDate),
-        },
+        "/teacher/std_attendance",
+        body: {'Date': DateFormat('yyyy-MM-dd').format(selectedDate)},
       );
 
       // AuthHelper already handles 401 + logout
@@ -58,8 +57,9 @@ void dispose() {
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
 
-        final List<Map<String, dynamic>> list =
-            List<Map<String, dynamic>>.from(data);
+        final List<Map<String, dynamic>> list = List<Map<String, dynamic>>.from(
+          data,
+        );
 
         for (final student in list) {
           if (student['Status'] == 'not_marked') {
@@ -84,9 +84,9 @@ void dispose() {
       debugPrint("🚨 FETCH ATTENDANCE ERROR: $e");
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Something went wrong")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Something went wrong")));
     } finally {
       if (!mounted) return;
       setState(() => isLoading = false);
@@ -103,10 +103,9 @@ void dispose() {
       filteredStudents = students
           .where(
             (s) =>
-                s['StudentName']
-                    .toString()
-                    .toLowerCase()
-                    .contains(query.toLowerCase()) ||
+                s['StudentName'].toString().toLowerCase().contains(
+                  query.toLowerCase(),
+                ) ||
                 s['RollNo'].toString().contains(query),
           )
           .toList();
@@ -174,20 +173,15 @@ void dispose() {
       final payload = {
         "AttendanceDate": DateFormat('yyyy-MM-dd').format(selectedDate),
         "Attendance": students
-            .map(
-              (s) => {
-                "StudentId": s['id'],
-                "Status": s['Status'],
-              },
-            )
+            .map((s) => {"StudentId": s['id'], "Status": s['Status']})
             .toList(),
       };
 
       debugPrint("📤 SUBMIT PAYLOAD: $payload");
 
-      final res = await AuthHelper.post(
+      final res = await ApiService.post(
         context,
-        'https://schoolerp.edusathi.in/api/teacher/std_attendance/store',
+        "/teacher/std_attendance/store",
         body: payload,
       );
 
@@ -202,18 +196,16 @@ void dispose() {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            result['message'] ?? 'Attendance updated successfully',
-          ),
+          content: Text(result['message'] ?? 'Attendance updated successfully'),
         ),
       );
     } catch (e) {
       debugPrint("🚨 SUBMIT ERROR: $e");
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Submission failed")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Submission failed")));
     } finally {
       if (!mounted) return;
       setState(() => isSubmitting = false);
@@ -287,12 +279,13 @@ void dispose() {
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Mark Attendance"),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
         foregroundColor: Colors.white,
       ),
@@ -302,13 +295,13 @@ void dispose() {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                const Icon(Icons.calendar_today, color: Colors.deepPurple),
+                const Icon(Icons.calendar_today, color: AppColors.primary),
                 const SizedBox(width: 10),
                 Text("Date: ${DateFormat('dd-MM-yyyy').format(selectedDate)}"),
                 const Spacer(),
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
+                    backgroundColor: AppColors.primary,
                   ),
                   onPressed: pickDate,
                   icon: const Icon(Icons.edit_calendar, color: Colors.white),
@@ -327,17 +320,17 @@ void dispose() {
               controller: searchController,
               decoration: InputDecoration(
                 hintText: "Search student...",
-                prefixIcon: const Icon(Icons.search, color: Colors.deepPurple),
+                prefixIcon: const Icon(Icons.search, color: AppColors.primary),
                 filled: true,
-                fillColor: Colors.deepPurple.shade50,
+                fillColor: AppColors.primary.shade50,
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25),
-                  borderSide: const BorderSide(color: Colors.deepPurple),
+                  borderSide: const BorderSide(color: AppColors.primary),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25),
                   borderSide: const BorderSide(
-                    color: Colors.deepPurple,
+                    color: AppColors.primary,
                     width: 2,
                   ),
                 ),
@@ -361,7 +354,7 @@ void dispose() {
               ),
             ),
 
-          if (isLoading) const Center(child: CircularProgressIndicator()),
+          if (isLoading) const Center(child: CircularProgressIndicator(color: AppColors.primary),),
           if (!isLoading && students.isNotEmpty)
             Expanded(
               child: ListView.builder(
@@ -476,10 +469,10 @@ void dispose() {
               child: SizedBox(
                 width: double.infinity,
                 child: isSubmitting
-                    ? const Center(child: CircularProgressIndicator())
+                    ? const Center(child: CircularProgressIndicator(color: AppColors.primary),)
                     : ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
+                          backgroundColor: AppColors.primary,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
                         onPressed: () async {

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:edusathi_v2/auth_helper.dart';
+import 'package:edusathi_v2/api_service.dart';
+
 
 class TeacherTimeTablePage extends StatefulWidget {
   const TeacherTimeTablePage({super.key});
@@ -23,12 +24,12 @@ class _TeacherTimeTablePageState extends State<TeacherTimeTablePage> {
   List<dynamic> periods = [];
   bool isLoading = true;
 
-  final String apiUrl = 'https://schoolerp.edusathi.in/api/teacher/timetable';
+  
 
   @override
   void initState() {
     super.initState();
-    fetchTimeTableForDay(1); // Monday
+    fetchTimeTableForDay(1); 
   }
 
  Future<void> fetchTimeTableForDay(int dayCode) async {
@@ -39,9 +40,9 @@ class _TeacherTimeTablePageState extends State<TeacherTimeTablePage> {
   debugPrint("🟡 fetchTimeTableForDay START | Day: $dayCode");
 
   try {
-    final response = await AuthHelper.post(
+    final response = await ApiService.post(
       context,
-      apiUrl,
+      '/teacher/timetable',
       body: {'Day': dayCode},
     );
 
@@ -112,7 +113,7 @@ class _TeacherTimeTablePageState extends State<TeacherTimeTablePage> {
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primary,
       ),
       body: Column(
         children: [
@@ -123,7 +124,7 @@ class _TeacherTimeTablePageState extends State<TeacherTimeTablePage> {
             child: isLoading
                 ? const Center(
                     child: CircularProgressIndicator(
-                      color: Colors.deepPurple,
+                      color: AppColors.primary,
                     ),
                   )
                 : periods.isEmpty
@@ -140,7 +141,7 @@ class _TeacherTimeTablePageState extends State<TeacherTimeTablePage> {
                                   'LUNCH');
 
                           Color bgColor =
-                              slot == "2" ? Colors.orange : Colors.deepPurple;
+                              slot == "2" ? Colors.orange : AppColors.primary;
 
                           return Card(
                             margin: const EdgeInsets.only(bottom: 12),
@@ -262,9 +263,9 @@ class _TeacherTimeTablePageState extends State<TeacherTimeTablePage> {
               padding:
                   const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
-                color: isSelected ? Colors.deepPurple : Colors.transparent,
+                color: isSelected ? AppColors.primary : Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.deepPurple, width: 1.2),
+                border: Border.all(color: AppColors.primary, width: 1.2),
               ),
               child: Row(
                 children: [

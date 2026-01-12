@@ -1,14 +1,14 @@
-import 'package:edusathi_v2/connect_teacher/teacher_chat_screen.dart';
-import 'package:edusathi_v2/exam_schedule.dart';
-import 'package:edusathi_v2/syllabus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:edusathi_v2/api_service.dart';
 import 'package:edusathi_v2/login_page.dart';
 import 'package:edusathi_v2/alert/stu_alert.dart';
+import 'package:edusathi_v2/connect_teacher/teacher_chat_list.dart';
 import 'package:edusathi_v2/payment/payment_teacher_screen.dart';
 import 'package:edusathi_v2/school_info_page.dart';
+import 'package:edusathi_v2/syllabus/syllabus.dart';
 import 'package:edusathi_v2/teacher/AssignMarksPage.dart';
 import 'package:edusathi_v2/teacher/AssignSkillsPage.dart';
 import 'package:edusathi_v2/teacher/ResultcardPage.dart';
@@ -20,6 +20,7 @@ import 'package:edusathi_v2/teacher/teacher_homework_page.dart';
 import 'package:edusathi_v2/teacher/teacher_profile_page.dart';
 import 'package:edusathi_v2/Attendance_UI/attendance_screen.dart';
 import 'package:edusathi_v2/teacher/teacher_timetable.dart';
+import 'package:edusathi_v2/Exam/exam_schedule.dart';
 
 class TeacherSidebarMenu extends StatefulWidget {
   const TeacherSidebarMenu({super.key});
@@ -56,7 +57,7 @@ class _TeacherSidebarMenuState extends State<TeacherSidebarMenu> {
     if (photo.isEmpty) return '';
     return photo.startsWith('http')
         ? photo
-        : 'https://schoolerp.edusathi.in/$photo';
+        : 'https://school.edusathi.in/$photo';
   }
 
   void _navigate(BuildContext context, Widget page) {
@@ -71,27 +72,24 @@ class _TeacherSidebarMenuState extends State<TeacherSidebarMenu> {
 
   Future<void> _logout(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
-
-    // ✅ FIX: correct token key
     final token = prefs.getString('auth_token') ?? '';
 
     try {
       if (token.isNotEmpty) {
         await http.post(
-          Uri.parse('https://schoolerp.edusathi.in/api/logout'),
+          Uri.parse('https://school.edusathi.in/api/logout'),
           headers: {
             'Authorization': 'Bearer $token',
             'Accept': 'application/json',
           },
         );
       }
-    } catch (_) {
-      // ignore API failure, still logout locally
-    }
+    } catch (_) {}
 
-    // ✅ FIX: clear BOTH storages
     await prefs.clear();
-    await _secureStorage.delete(key: 'auth_token');
+    await prefs.setBool('is_logged_in', false);
+
+    await _secureStorage.deleteAll();
 
     if (!mounted) return;
 
@@ -108,7 +106,7 @@ class _TeacherSidebarMenuState extends State<TeacherSidebarMenu> {
       child: ListView(
         children: [
           Container(
-            color: Colors.deepPurple,
+            color: AppColors.primary,
             height: 130,
             padding: const EdgeInsets.all(12),
             child: Row(

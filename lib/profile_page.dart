@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:edusathi_v2/api_service.dart';
 import 'package:edusathi_v2/changePasswordPage.dart';
-import 'package:edusathi_v2/auth_helper.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -33,8 +33,12 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    loadLocalData();
-    fetchProfileFromApi();
+    _initProfile();
+  }
+
+  Future<void> _initProfile() async {
+    await loadLocalData();
+    await fetchProfileFromApi();
   }
 
   Future<void> loadLocalData() async {
@@ -51,9 +55,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> fetchProfileFromApi() async {
     try {
-      final res = await AuthHelper.post(
+      final res = await ApiService.post(
         context,
-        'https://schoolerp.edusathi.in/api/student/profile',
+        '/student/profile',
         body: {}, // 🔥 Laravel requires body
       );
 
@@ -111,7 +115,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return NetworkImage(
       studentPhoto.startsWith('http')
           ? studentPhoto
-          : 'https://schoolerp.edusathi.in/$studentPhoto',
+          : 'https://school.edusathi.in/$studentPhoto',
     );
   }
 
@@ -123,11 +127,11 @@ class _ProfilePageState extends State<ProfilePage> {
           "Student Profile",
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary),)
           : Padding(
               padding: const EdgeInsets.all(16),
               child: Card(
@@ -202,7 +206,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           style: TextStyle(color: Colors.white),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
+                          backgroundColor: AppColors.primary,
                         ),
                       ),
                     ],
@@ -218,7 +222,7 @@ class _ProfilePageState extends State<ProfilePage> {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Icon(icon, color: Colors.deepPurple),
+          Icon(icon, color: AppColors.primary),
           const SizedBox(width: 10),
           Text("$title: ", style: const TextStyle(fontWeight: FontWeight.bold)),
           Expanded(child: Text(value, overflow: TextOverflow.ellipsis)),

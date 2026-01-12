@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:edusathi_v2/auth_helper.dart';
+import 'package:edusathi_v2/api_service.dart';
+import 'package:edusathi_v2/main.dart';
 import 'package:edusathi_v2/payment/payment_teacher_screen.dart';
 import 'package:edusathi_v2/teacher/complaint_teacher/teacher_complaint_list_page.dart';
 import 'package:edusathi_v2/teacher/student_list.dart';
@@ -17,8 +18,10 @@ class TeacherDashboardScreen extends StatefulWidget {
   State<TeacherDashboardScreen> createState() => _TeacherDashboardScreenState();
 }
 
-class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
+class _TeacherDashboardScreenState extends State<TeacherDashboardScreen>
+    with RouteAware {
   bool isLoading = true;
+  bool isRefreshing = false;
 
   int students = 0;
   int complaints = 0;
@@ -31,20 +34,46 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
   List<Map<String, dynamic>> homeworks = [];
 
   @override
-  void initState() {
-    super.initState();
-    _initDashboard();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
   }
 
-  // ---------------- INIT ----------------
-  Future<void> _initDashboard() async {
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    _refreshDashboard();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshDashboard(); // first time
+  }
+
+  Future<void> _refreshDashboard() async {
+    if (!mounted) return;
+
+    if (!isLoading) {
+      // back / refresh case
+      setState(() => isRefreshing = true);
+    }
+
     await loadTeacherInfo();
-    if (!mounted) return;
-
     await fetchDashboardData();
+    await fetchTeacherHomeworks();
+
     if (!mounted) return;
 
-    await fetchTeacherHomeworks();
+    setState(() {
+      isLoading = false;
+      isRefreshing = false;
+    });
   }
 
   // ---------------- TEACHER INFO ----------------
@@ -62,10 +91,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
   // ---------------- DASHBOARD DATA ----------------
   Future<void> fetchDashboardData() async {
     try {
-      final response = await AuthHelper.post(
-        context,
-        'https://schoolerp.edusathi.in/api/teacher/dashboard',
-      );
+      final response = await ApiService.post(context, '/teacher/dashboard');
 
       if (response == null) return;
 
@@ -87,20 +113,13 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
       });
     } catch (_) {
       // silent
-    } finally {
-      if (mounted) {
-        setState(() => isLoading = false);
-      }
     }
   }
 
   // ---------------- HOMEWORK ----------------
   Future<void> fetchTeacherHomeworks() async {
     try {
-      final response = await AuthHelper.post(
-        context,
-        'https://schoolerp.edusathi.in/api/teacher/homework',
-      );
+      final response = await ApiService.post(context, '/teacher/homework');
 
       if (response == null) return;
 
@@ -122,7 +141,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
       drawer: TeacherSidebarMenu(),
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primary,
         titleSpacing: 0,
         title: Row(
           children: [
@@ -140,7 +159,7 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
                     radius: 15,
                   )
                 : const CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/logo_new.png'),
+                    backgroundImage: AssetImage(AppAssets.logo_new),
                     radius: 15,
                   ),
             const SizedBox(width: 15),
@@ -148,72 +167,87 @@ class _TeacherDashboardScreenState extends State<TeacherDashboardScreen> {
         ),
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      GestureDetector(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => StudentListPage()),
-                        ),
-                        child: DashboardCard(
-                          title: 'Students',
-                          value: students.toString(),
-                          borderColor: Colors.blue,
-                          backgroundColor: const Color(0xFFE3F2FD),
-                          textColor: Colors.blue,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => PaymentTeacherScreen(),
-                          ),
-                        ),
-                        child: DashboardCard(
-                          title: 'Payments',
-                          value: payments.toString(),
-                          borderColor: Colors.green,
-                          backgroundColor: const Color(0xFFE8F5E9),
-                          textColor: Colors.green,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => TeacherComplaintListPage(),
-                          ),
-                        ),
-                        child: DashboardCard(
-                          title: 'Complaints',
-                          value: complaints.toString(),
-                          borderColor: Colors.red,
-                          backgroundColor: const Color(0xFFFFEBEE),
-                          textColor: Colors.red,
-                        ),
-                      ),
-                    ],
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            )
+          : Column(
+              children: [
+                if (isRefreshing)
+                  const LinearProgressIndicator(
+                    minHeight: 3,
+                    color: AppColors.primary,
                   ),
-                  const SizedBox(height: 30),
-                  AttendancePieChart(
-                    present: attendance['present'] ?? 0,
-                    absent: attendance['absent'] ?? 0,
-                    leave: attendance['leave'] ?? 0,
-                    halfDay: attendance['half_day'] ?? 0,
-                    workingDays: attendance['working_days'] ?? 0,
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            GestureDetector(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => StudentListPage(),
+                                ),
+                              ),
+                              child: DashboardCard(
+                                title: 'Students',
+                                value: students.toString(),
+                                borderColor: Colors.blue,
+                                backgroundColor: const Color(0xFFE3F2FD),
+                                textColor: Colors.blue,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => PaymentTeacherScreen(),
+                                ),
+                              ),
+                              child: DashboardCard(
+                                title: 'Payments',
+                                value: payments.toString(),
+                                borderColor: Colors.green,
+                                backgroundColor: const Color(0xFFE8F5E9),
+                                textColor: Colors.green,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => TeacherComplaintListPage(),
+                                ),
+                              ),
+                              child: DashboardCard(
+                                title: 'Complaints',
+                                value: complaints.toString(),
+                                borderColor: Colors.red,
+                                backgroundColor: const Color(0xFFFFEBEE),
+                                textColor: Colors.red,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 30),
+                        AttendancePieChart(
+                          present: attendance['present'] ?? 0,
+                          absent: attendance['absent'] ?? 0,
+                          leave: attendance['leave'] ?? 0,
+                          halfDay: attendance['half_day'] ?? 0,
+                          workingDays: attendance['working_days'] ?? 0,
+                        ),
+                        const SizedBox(height: 20),
+                        TeacherRecentHomeworks(homeworks: homeworks),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 20),
-                  TeacherRecentHomeworks(homeworks: homeworks),
-                ],
-              ),
+                ),
+              ],
             ),
     );
   }
@@ -341,7 +375,7 @@ class AttendancePieChart extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple,
+                    color: AppColors.primary,
                   ),
                 ),
               ],

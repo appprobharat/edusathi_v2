@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:edusathi_v2/auth_helper.dart';
+import 'package:edusathi_v2/api_service.dart';
 import 'package:edusathi_v2/complaint/addComplaint.dart';
 import 'package:edusathi_v2/complaint/complaint_detail_page.dart';
 import 'package:edusathi_v2/dashboard/dashboard_screen.dart';
@@ -14,7 +14,7 @@ class ViewComplaintPage extends StatefulWidget {
 }
 
 class _ViewComplaintPageState extends State<ViewComplaintPage> {
-  final String apiUrl = 'https://schoolerp.edusathi.in/api/student/complaint';
+ 
 
   List<dynamic> complaints = [];
   bool isLoading = true;
@@ -34,7 +34,7 @@ class _ViewComplaintPageState extends State<ViewComplaintPage> {
     setState(() => isLoading = true);
 
     try {
-      final res = await AuthHelper.post(context, apiUrl);
+      final res = await ApiService.post(context,'/student/complaint');
 
       // AuthHelper handles 401 + logout
       if (res == null) return;
@@ -85,7 +85,7 @@ class _ViewComplaintPageState extends State<ViewComplaintPage> {
           'My Complaints',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primary,
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -99,7 +99,7 @@ class _ViewComplaintPageState extends State<ViewComplaintPage> {
       ),
       body: isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: Colors.deepPurple),
+              child: CircularProgressIndicator(color: AppColors.primary),
             )
           : complaints.isEmpty
               ? const Center(child: Text('No complaints available'))
@@ -139,7 +139,7 @@ class _ViewComplaintPageState extends State<ViewComplaintPage> {
                                 children: [
                                   const Icon(
                                     Icons.date_range,
-                                    color: Colors.deepPurple,
+                                    color: AppColors.primary,
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
@@ -187,7 +187,7 @@ class _ViewComplaintPageState extends State<ViewComplaintPage> {
                   },
                 ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.primary,
         child: const Icon(Icons.add, color: Colors.white),
         onPressed: () {
           Navigator.push(
