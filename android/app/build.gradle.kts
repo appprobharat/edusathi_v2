@@ -17,7 +17,7 @@ android {
         applicationId = "com.techinnovationapp.edusathi_v2"
         minSdk = flutter.minSdkVersion
         targetSdk = 35
-        versionCode = 4
+        versionCode = 6
         versionName = "2.0.0"
     }
 
